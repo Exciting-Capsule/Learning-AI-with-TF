@@ -1,0 +1,3 @@
+-   visualize midterm election results
+-   emotion detection using facial recognition
+-   voice recognition
