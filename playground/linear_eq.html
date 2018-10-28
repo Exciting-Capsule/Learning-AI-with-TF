@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ML Linear Equation</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"></script>
+	
+	<style type="text/css">
+		table, th, td {
+			border: 1px solid black;
+			margin: auto;
+			padding: 5px;
+			text-align: center;
+		}
+
+		div {
+			text-align: center;
+		}
+
+		input {
+			text-align: right;
+		}
+	</style>
+</head>
+<body>
+	<div id="title">
+		<h1>Machine Learning for Linear Equation</h1>
+		<h3>Learning gradient from sets of data and predicting outcome</h1>
+	</div>
+	<br>
+	<div id="content">
+		<p>Insert data into table for training</p>
+		<div id="input_table">		
+			<table>
+				<thead>
+					<tr>
+						<th>No</th>
+						<th>Input/x</th>
+						<th>Expected Outcome/y</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>1</td>
+						<td>
+							<input type="number" id="x_0" class="x_input" name="x_0" value="1">
+						</td>
+						<td>
+							<input type="number" id="y_0" class="y_input" name="y_0" value="1">
+						</td>
+					</tr>
+					<tr>
+						<td>2</td>
+						<td>
+							<input type="number" id="x_1" class="x_input" name="x_1" value="2">
+						</td>
+						<td>
+							<input type="number" id="y_1" class="y_input" name="y_1" value="2">
+						</td>
+					</tr>
+					<tr>
+						<td>3</td>
+						<td>
+							<input type="number" id="x_2" class="x_input" name="x_2" value="3">
+						</td>
+						<td>
+							<input type="number" id="y_2" class="y_input" name="y_2" value="3">
+						</td>
+					</tr>
+					<tr>
+						<td>4</td>
+						<td>
+							<input type="number" id="x_3" class="x_input" name="x_3" value="4">
+						</td>
+						<td>
+							<input type="number" id="y_3" class="y_input" name="y_3" value="4">
+						</td>
+					</tr>
+					<tr>
+						<td>5</td>
+						<td>
+							<input type="number" id="x_4" class="x_input" name="x_4" value="5">
+						</td>
+						<td>
+							<input type="number" id="y_4" class="y_input" name="y_4" value="5">
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<br><br>
+		<p>Fill in the box below to predict the outcome</p>
+		<input type="number" id="predict_input" name="predict_input" value="6">
+		<input type="button" name="predict" value="Predict" onclick="predict();">
+	</div>
+	<div id="predicted_outcome"></div>	
+
+
+	<script>
+		// Declaring the learning 
+		async function predict(){
+			document.getElementById('predicted_outcome').innerText = 'Loading.....';
+
+			// creating model and layer
+			const model = tf.sequential();
+			model.add(tf.layers.dense({units:1, inputShape: [1]}));
+			
+			// defining loss type and optimizer and then compile it
+			model.compile({
+				loss: 'meanSquaredError',
+				optimizer: 'sgd'
+			});
+
+			// data/tensor to train model
+			const x_value = [];
+			const y_value = [];
+			const x_count = document.getElementsByClassName('x_input').length;
+			const y_count = document.getElementsByClassName('y_input').length;
+
+			for (var i = 0; i < x_count; i++) {
+				x_value.push(document.getElementById('x_'+i).value);
+			}
+
+			for (var j = 0; j < y_count; j++) {
+				y_value.push(document.getElementById('y_'+j).value);
+			}
+
+			const x_tensor = tf.tensor2d( x_value, [x_count, 1]);
+			const y_tensor = tf.tensor2d( y_value, [y_count, 1]);
+
+			// fit as our training method (epochs mean number of loops through data)
+			await model.fit(x_tensor, y_tensor, {epochs: 500});
+			
+			const x_predict = document.getElementById('predict_input').value;
+			const y_predict = model.predict( tf.tensor2d( [x_predict], [1, 1] ) ).asScalar();
+
+			document.getElementById('predicted_outcome').innerText = y_predict;
+		}
+	</script>
+</body>
+</html>
